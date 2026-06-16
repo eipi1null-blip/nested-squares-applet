@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nested Squares Area Pattern</title>
+    <style>
+      :root {
+        --ink: #20242c;
+        --muted: #627084;
+        --page: #f5f7fb;
+        --panel: #ffffff;
+        --line: #dbe3ee;
+        --peach: #ffe8d8;
+        --purple: #6b35b1;
+        --blue: #2f71d6;
+        --green: #21865a;
+        --orange: #ec8f35;
+        --shadow: 0 18px 44px rgba(26, 37, 58, 0.13);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 14% 10%, rgba(236, 143, 53, 0.16), transparent 31%),
+          radial-gradient(circle at 88% 4%, rgba(47, 113, 214, 0.13), transparent 28%),
+          var(--page);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 22px 0 28px;
+      }
+
+      .hero,
+      .workspace,
+      .bottom-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        margin-bottom: 16px;
+      }
+
+      .hero-main,
+      .answer-card,
+      .controls,
+      .drawing-panel,
+      .table-panel,
+      .predict-panel {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero-main {
+        padding: 24px;
+        background: linear-gradient(180deg, #ffffff, var(--peach));
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--purple);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 800px;
+        margin-bottom: 12px;
+        font-size: clamp(2rem, 4.2vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin-bottom: 12px;
+        font-size: 1.05rem;
+      }
+
+      .intro {
+        max-width: 76ch;
+        margin-bottom: 0;
+        color: #3f4754;
+        font-size: 1.05rem;
+        line-height: 1.55;
+      }
+
+      .answer-card {
+        display: grid;
+        align-content: center;
+        gap: 8px;
+        padding: 22px;
+      }
+
+      .answer-card span {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .answer-card strong {
+        color: var(--purple);
+        font-size: 1.5rem;
+      }
+
+      .answer-card small {
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .workspace {
+        grid-template-columns: 280px minmax(0, 1fr);
+        margin-bottom: 16px;
+      }
+
+      .controls,
+      .drawing-panel,
+      .table-panel,
+      .predict-panel {
+        padding: 18px;
+      }
+
+      .controls label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 16px 0 8px;
+        color: #2f3d50;
+        font-size: 0.92rem;
+        font-weight: 850;
+      }
+
+      output {
+        color: var(--blue);
+      }
+
+      input[type="range"],
+      input[type="number"],
+      button {
+        width: 100%;
+      }
+
+      input[type="range"] {
+        accent-color: var(--purple);
+      }
+
+      input[type="number"] {
+        min-height: 42px;
+        padding: 0 10px;
+        border: 1px solid #cfd8e3;
+        border-radius: 8px;
+      }
+
+      button {
+        min-height: 44px;
+        margin-top: 14px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--ink);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 850;
+      }
+
+      button.secondary {
+        background: #eef3fb;
+        color: var(--ink);
+      }
+
+      .drawing-panel {
+        min-width: 0;
+      }
+
+      .canvas-wrap {
+        display: grid;
+        place-items: center;
+        min-height: 520px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(#edf2f8 1px, transparent 1px),
+          linear-gradient(90deg, #edf2f8 1px, transparent 1px),
+          #ffffff;
+        background-size: 24px 24px;
+      }
+
+      svg {
+        width: min(100%, 620px);
+        height: auto;
+        max-height: 500px;
+      }
+
+      .square {
+        fill: none;
+        stroke-linejoin: round;
+        stroke-width: 4;
+        filter: drop-shadow(0 5px 8px rgba(26, 37, 58, 0.13));
+      }
+
+      .point {
+        fill: #fff;
+        stroke: var(--ink);
+        stroke-width: 3;
+      }
+
+      .midpoint {
+        fill: var(--orange);
+        stroke: #fff;
+        stroke-width: 2;
+      }
+
+      .label {
+        fill: var(--ink);
+        font-size: 25px;
+        font-weight: 900;
+      }
+
+      .note {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.45;
+      }
+
+      .bottom-grid {
+        grid-template-columns: minmax(0, 1fr) 360px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.94rem;
+      }
+
+      th,
+      td {
+        padding: 9px 10px;
+        border-bottom: 1px solid #e5ebf3;
+        text-align: right;
+      }
+
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+
+      th {
+        background: #edf3fb;
+        color: #25344a;
+      }
+
+      tbody tr.active {
+        background: #f5edff;
+        color: var(--purple);
+        font-weight: 850;
+      }
+
+      .predict-result {
+        min-height: 80px;
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid #dce4ee;
+        border-radius: 8px;
+        background: #fbfcff;
+        color: #314156;
+        line-height: 1.45;
+      }
+
+      .pattern-box {
+        margin-top: 12px;
+        padding: 12px;
+        border-left: 4px solid var(--green);
+        background: #effaf4;
+        color: #294536;
+        border-radius: 6px;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .workspace,
+        .bottom-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .canvas-wrap {
+          min-height: 390px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <div class="hero-main">
+          <p class="eyebrow">Midpoint Squares</p>
+          <h1>Area Shrinks by One Half Each Time</h1>
+          <p class="intro">
+            Start with a square of area 16 cm². Connect the midpoints of its
+            sides to form a new square. Keep repeating the pattern and watch
+            the areas form a geometric sequence.
+          </p>
+        </div>
+        <div class="answer-card" aria-live="polite">
+          <span>Current Square</span>
+          <strong id="currentArea">16 cm²</strong>
+          <small id="formula">Aₙ = 16(1/2)ⁿ⁻¹</small>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="controls">
+          <h2>Controls</h2>
+          <label for="squareCount">
+            Squares shown
+            <output id="squareCountValue">0</output>
+          </label>
+          <input id="squareCount" type="range" min="0" max="10" step="1" value="0" />
+
+          <label for="highlight">
+            Highlight square
+            <output id="highlightValue">0</output>
+          </label>
+          <input id="highlight" type="range" min="0" max="10" step="1" value="0" />
+
+          <button id="play" type="button">Play Pattern</button>
+          <button id="reset" class="secondary" type="button">Reset</button>
+
+          <div class="pattern-box">
+            Each new square uses the side midpoints of the previous square. Its
+            area is exactly half of the previous area.
+          </div>
+        </aside>
+
+        <section class="drawing-panel">
+          <h2>Construction</h2>
+          <div class="canvas-wrap">
+            <svg id="diagram" viewBox="0 0 640 640" role="img" aria-label="Nested midpoint squares diagram"></svg>
+          </div>
+          <p class="note" id="diagramNote">
+            Move the slider to begin drawing the square pattern.
+          </p>
+        </section>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="table-panel">
+          <h2>Area Table</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Square</th>
+                <th>Area</th>
+                <th>Pattern</th>
+              </tr>
+            </thead>
+            <tbody id="areaRows"></tbody>
+          </table>
+        </section>
+
+        <section class="predict-panel">
+          <h2>Predict the 10th Square</h2>
+          <label for="prediction">Area of the 10th square, in cm²</label>
+          <input id="prediction" type="number" step="0.0001" placeholder="Enter your prediction" />
+          <button id="check" type="button">Check Prediction</button>
+          <div class="predict-result" id="predictionResult">
+            Hint: multiply by 1/2 each time you move to the next square.
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const diagram = document.querySelector("#diagram");
+      const squareCountInput = document.querySelector("#squareCount");
+      const highlightInput = document.querySelector("#highlight");
+      const squareCountValue = document.querySelector("#squareCountValue");
+      const highlightValue = document.querySelector("#highlightValue");
+      const currentArea = document.querySelector("#currentArea");
+      const areaRows = document.querySelector("#areaRows");
+      const diagramNote = document.querySelector("#diagramNote");
+      const playButton = document.querySelector("#play");
+      const resetButton = document.querySelector("#reset");
+      const predictionInput = document.querySelector("#prediction");
+      const checkButton = document.querySelector("#check");
+      const predictionResult = document.querySelector("#predictionResult");
+
+      const colors = ["#2f71d6", "#6b35b1", "#21865a", "#ec8f35", "#d83d68", "#087f8c", "#845ec2", "#c56b1f", "#3f7d20", "#455a8f"];
+      let playTimer = null;
+
+      function areaOf(n) {
+        return 16 * Math.pow(0.5, n - 1);
+      }
+
+      function formatArea(value) {
+        if (value >= 1 && Number.isInteger(value)) return `${value}`;
+        return value.toFixed(5).replace(/0+$/, "").replace(/\.$/, "");
+      }
+
+      function midpoint(p, q) {
+        return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+      }
+
+      function polygon(points, attrs = {}) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        el.setAttribute("points", points.map((p) => p.join(",")).join(" "));
+        Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+        return el;
+      }
+
+      function circle(point, r, className) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        el.setAttribute("cx", point[0]);
+        el.setAttribute("cy", point[1]);
+        el.setAttribute("r", r);
+        el.setAttribute("class", className);
+        return el;
+      }
+
+      function text(label, x, y, className = "label") {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        el.textContent = label;
+        el.setAttribute("x", x);
+        el.setAttribute("y", y);
+        el.setAttribute("class", className);
+        el.setAttribute("text-anchor", "middle");
+        return el;
+      }
+
+      function getSquares(count) {
+        const squares = [];
+        let points = [
+          [160, 160],
+          [480, 160],
+          [480, 480],
+          [160, 480]
+        ];
+        for (let i = 0; i < count; i += 1) {
+          squares.push(points);
+          points = [
+            midpoint(points[0], points[1]),
+            midpoint(points[1], points[2]),
+            midpoint(points[2], points[3]),
+            midpoint(points[3], points[0])
+          ];
+        }
+        return squares;
+      }
+
+      function renderDiagram() {
+        const count = Number(squareCountInput.value);
+        const highlight = Math.min(Number(highlightInput.value), count);
+        diagram.innerHTML = "";
+
+        if (count === 0) {
+          squareCountValue.textContent = 0;
+          highlightInput.max = 0;
+          highlightInput.value = 0;
+          highlightValue.textContent = 0;
+          currentArea.textContent = "No square shown";
+          diagramNote.textContent = "Move the slider to draw the original square with area 16 cm².";
+          renderTable();
+          return;
+        }
+
+        const squares = getSquares(count);
+
+        squares.forEach((points, index) => {
+          const n = index + 1;
+          const isActive = n === highlight;
+          const sq = polygon(points, {
+            class: "square",
+            stroke: colors[index % colors.length],
+            "stroke-width": isActive ? 7 : 3.5,
+            opacity: isActive ? 1 : 0.56
+          });
+          diagram.appendChild(sq);
+        });
+
+        const outer = squares[0];
+        ["A", "B", "C", "D"].forEach((letter, i) => {
+          diagram.appendChild(circle(outer[i], 7, "point"));
+        });
+        diagram.appendChild(text("A", 140, 148));
+        diagram.appendChild(text("B", 500, 148));
+        diagram.appendChild(text("C", 500, 510));
+        diagram.appendChild(text("D", 140, 510));
+
+        if (count >= 2) {
+          const mids = [
+            midpoint(outer[0], outer[1]),
+            midpoint(outer[1], outer[2]),
+            midpoint(outer[2], outer[3]),
+            midpoint(outer[3], outer[0])
+          ];
+          mids.forEach((p) => diagram.appendChild(circle(p, 6, "midpoint")));
+        }
+
+        squareCountValue.textContent = count;
+        highlightInput.max = count;
+        highlightInput.value = highlight;
+        highlightValue.textContent = highlight;
+        currentArea.textContent = `${formatArea(areaOf(highlight))} cm²`;
+        diagramNote.textContent = `Square ${highlight} has area ${formatArea(areaOf(highlight))} cm². It is half the area of the previous square, unless it is the first square.`;
+        renderTable();
+      }
+
+      function renderTable() {
+        const count = Number(squareCountInput.value);
+        const highlight = Number(highlightInput.value);
+        areaRows.innerHTML = "";
+        if (count === 0) {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td colspan="3" style="text-align: left;">No squares shown yet. Move the slider to start the pattern.</td>
+          `;
+          areaRows.appendChild(row);
+          return;
+        }
+        for (let n = 1; n <= count; n += 1) {
+          const row = document.createElement("tr");
+          if (n === highlight) row.className = "active";
+          row.innerHTML = `
+            <td>${n}</td>
+            <td>${formatArea(areaOf(n))} cm²</td>
+            <td>16 × (1/2)<sup>${n - 1}</sup></td>
+          `;
+          areaRows.appendChild(row);
+        }
+      }
+
+      function checkPrediction() {
+        const guess = Number(predictionInput.value);
+        const actual = areaOf(10);
+        if (!predictionInput.value) {
+          predictionResult.textContent = "Enter a prediction first.";
+          return;
+        }
+        const close = Math.abs(guess - actual) < 0.0002;
+        predictionResult.innerHTML = close
+          ? `Correct. The 10th square has area <strong>${formatArea(actual)} cm²</strong>.`
+          : `Not quite. The 10th square is 16 × (1/2)<sup>9</sup> = <strong>${formatArea(actual)} cm²</strong>.`;
+      }
+
+      function playPattern() {
+        clearInterval(playTimer);
+        squareCountInput.value = 0;
+        highlightInput.value = 0;
+        renderDiagram();
+        playTimer = setInterval(() => {
+          const next = Number(squareCountInput.value) + 1;
+          if (next > 10) {
+            clearInterval(playTimer);
+            return;
+          }
+          squareCountInput.value = next;
+          highlightInput.value = next;
+          renderDiagram();
+        }, 650);
+      }
+
+      squareCountInput.addEventListener("input", renderDiagram);
+      highlightInput.addEventListener("input", renderDiagram);
+      checkButton.addEventListener("click", checkPrediction);
+      playButton.addEventListener("click", playPattern);
+      resetButton.addEventListener("click", () => {
+        clearInterval(playTimer);
+        squareCountInput.value = 0;
+        highlightInput.value = 0;
+        predictionInput.value = "";
+        predictionResult.textContent = "Hint: multiply by 1/2 each time you move to the next square.";
+        renderDiagram();
+      });
+
+      renderDiagram();
+    </script>
+  </body>
+</html>
